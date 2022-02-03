@@ -1,9 +1,9 @@
 define([
     'knockout',
     'viewmodels/card-component'
-], function(ko, CardComponentViewModel) {
+], function (ko, CardComponentViewModel) {
 
-    var viewModel = function(params) {
+    var viewModel = function (params) {
         var self = this;
 
         this.state = params.state || 'form';
@@ -21,20 +21,16 @@ define([
         // If we let the following for loop run unchecked while in (for example) card designer mode,
         // this function will stop mid-way through, causing all sorts of horrible HTML errors during
         // rendering.
-        if(this.form && (this.state === 'form') && this.form.addableCards)
-        {
+        if (this.form && (this.state === 'form') && this.form.addableCards) {
             // This loop simply fills the 'values' array with enough observable values for the number
             // of widgets we're going to render.
             var k = 0;
-            for(i = 0; i <= this.card.cards().length; i++)
-            {
+            for (i = 0; i <= this.card.cards().length; i++) {
                 var card = this.card.cards()[i];
-                if(card)
-                {
+                if (card) {
                     self.uimapping[i] = [];
                     var c = card.widgets().length;
-                    for(j = 0; j < c; j++)
-                    {
+                    for (j = 0; j < c; j++) {
                         self.values.push(ko.observable(""));
                         self.uimapping[i][j] = k;
                         k++;
@@ -52,76 +48,64 @@ define([
         // how to do that. So this function, local to this class, which of course knows how
         // many widgets each tile needs, is used to keep track of the array index, so we
         // can have multiple values per tile.
-        this.mapValue = function(i, j)
-        {
-            return(self.uimapping[i][j]);
+        this.mapValue = function (i, j) {
+            return (self.uimapping[i][j]);
         }
 
-        this.clearValue = function(arg)
-        {
+        this.clearValue = function (arg) {
             var index = arg();
             var valueindex = self.uimapping[index];
 
-            for(i = 0; i < valueindex.length; i++)
-            {
-//                savevalues[i] = this.values()[valueindex[i]]();
+            for (i = 0; i < valueindex.length; i++) {
+                //                savevalues[i] = this.values()[valueindex[i]]();
             }
         }
 
-        this.dirty = function(arg)
-	{
+        this.dirty = function (arg) {
             var index = arg();
             var valueindex = self.uimapping[index];
             var ret = false;
 
-            for(var i = 0; i < valueindex.length; i++)
-            {
-                if(this.values()[valueindex[i]]() != '') { ret = true; }
+            for (var i = 0; i < valueindex.length; i++) {
+                if (this.values()[valueindex[i]]() != '') { ret = true; }
             }
             return ret;
-	}
+        }
 
-	this.clearInput = function(arg)
-	{
+        this.clearInput = function (arg) {
             var index = arg();
             var valueindex = self.uimapping[index];
 
-            for(var i = 0; i < valueindex.length; i++)
-            {
+            for (var i = 0; i < valueindex.length; i++) {
                 this.values()[valueindex[i]]('');
             }
-	}
+        }
 
-        this.saveValue = function(arg)
-        {
+        this.saveValue = function (arg) {
             var index = arg();
             var valueindex = self.uimapping[index];
             var savevalues = []
             var atile = this.card.tiles()[0];
 
-            for(i = 0; i < valueindex.length; i++)
-            {
+            for (i = 0; i < valueindex.length; i++) {
                 savevalues[i] = this.values()[valueindex[i]]();
             }
 
             // At this point, if atile is undefined, we need to create it. There is almost certainly a more
             // efficient way of doing this, but this works well for now.
-            if(atile == null)
-            {
+            if (atile == null) {
                 // This code block runs if there are no nodes created
                 var topcard = this.card; // Explicitly set this here so the callback can access it
-                self.tile.save(null, function(tileData) {
+                self.tile.save(null, function (tileData) {
 
                     var newcard = topcard.tiles()[0].cards[index];
                     var newtile = newcard.getNewTile();
                     var keys = Object.keys(newtile.data);
                     var value_id = 0;
                     var savevalue = savevalues[value_id];
-                    for(i = 0; i < keys.length; i++)
-                    {
-                        if(keys[i].startsWith('_')) { continue; }
-                        if(typeof newtile.data[keys[i]] === "function")
-                        {
+                    for (i = 0; i < keys.length; i++) {
+                        if (keys[i].startsWith('_')) { continue; }
+                        if (typeof newtile.data[keys[i]] === "function") {
                             newtile.data[keys[i]](savevalue); // If this is an observable already, it'll be a function
                             value_id++;
                             savevalue = savevalues[value_id];
@@ -131,8 +115,8 @@ define([
                             savevalue = savevalues[value_id];
                         }
                     }
-                    newtile.save(null, function(created){ newcard.parent.selected(true); });
-		});
+                    newtile.save(null, function (created) { newcard.parent.selected(true); });
+                });
             } else {
                 // This code block runs if there is a node, and we are just adding a value to it
                 var newcard = this.card.tiles()[0].cards[index];
@@ -140,11 +124,9 @@ define([
                 var keys = Object.keys(newtile.data);
                 var value_id = 0;
                 var savevalue = savevalues[value_id];
-                for(i = 0; i < keys.length; i++)
-                {
-                    if(keys[i].startsWith('_')) { continue; }
-                    if(typeof newtile.data[keys[i]] === "function")
-                    {
+                for (i = 0; i < keys.length; i++) {
+                    if (keys[i].startsWith('_')) { continue; }
+                    if (typeof newtile.data[keys[i]] === "function") {
                         newtile.data[keys[i]](savevalue); // If this is an observable already, it'll be a function
                         value_id++;
                         savevalue = savevalues[value_id];
@@ -155,7 +137,7 @@ define([
                     }
                 }
 
-                newtile.save(null, function(created){ newcard.parent.selected(true); });
+                newtile.save(null, function (created) { newcard.parent.selected(true); });
             }
         };
 
